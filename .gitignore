@@ -128,3 +128,12 @@ obj/
 *.so
 *.dylib
 *.class
+*.vsidx
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.json
+*.ipch
+*.pdf
+*.sln
