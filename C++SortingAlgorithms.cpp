@@ -31,8 +31,7 @@ void insertionSort(int arr[], int n, sortResults& sortResult) {
 }
 
 int partition(int arr[], int low, int high, sortResults& sortResult) {
-    int pivot = arr[(high + low) / 2]; // Movement
-    sortResult.movements++;
+    int pivot = arr[(high + low) / 2];
     int i = low - 1;
 
     for (int j = low; j < high; j++) {
