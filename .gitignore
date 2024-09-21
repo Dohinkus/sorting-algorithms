@@ -1,3 +1,5 @@
+# Ignore Visual Studio temporary files, build results, and user-specific files.
+
 # Prerequisites
 *.d
 
@@ -6,10 +8,6 @@
 *.lo
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
 
 # Compiled Dynamic libraries
 *.so
@@ -30,3 +28,103 @@
 *.exe
 *.out
 *.app
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build/
+[Cc]Make[Cc]ache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# MSBuild project files
+*.vcxproj*
+*.vcxproj.filters
+*.vcxproj.user
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Generated files
+*.gen.cs
+*.iobj
+*.ipdb
+
+# Visual Studio Code workspace and settings
+.vscode/
+
+# Backup & Report files from VS
+*.log
+*.tlog
+*.lastbuildstate
+*.pdb
+*.idb
+*.o
+
+# Precompiled Headers
+*.pch
+*.gch
+
+# Libraries
+*.lib
+*.a
+
+# Directories for tool chain dependencies
+.idea/
+.vscode/
+out/
+deps/
+packages/
+
+# NuGet packages
+*.nupkg
+packages/
+.nuget/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code crash data
+.vscode/*.crash
+
+# Temporary files created by Visual Studio
+*.tmp
+*.temp
+
+# Ignore build output
+bin/
+obj/
+
+# Others
+*.log
+*.cache
+*.pyc
+*.class
+
+# Ignore DLLs, EXEs and other binary files
+*.dll
+*.exe
+*.com
+*.so
+*.dylib
+*.class
