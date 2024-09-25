@@ -9,7 +9,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
 // Manipulates an array's elements to be in order, reverse order, or random order
 void setAscendingArray(int arr[], int size);
 void setDescendingArray(int arr[], int size);
-void randomizeArray(int arr[], int size);
+void setRandomArray(int arr[], int size);
 
 // Sets all values to 0 in sortResults[]
 void resetSortResults(sortResults sortResults[], const int SORT_RESULTS_SIZE);
@@ -28,27 +28,15 @@ void compareMovements(int& fewestMovementsSort, sortResults sortResults[], const
 void compareDuration(int& fastestSort, sortResults sortResults[], const int SORT_RESULTS_SIZE);
 
 // Tests each sorting algorithm on an in order array
-void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
+void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
 // Tests each sorting algorithm on a reverse order array
-void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
+void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
 // Tests each sorting algorithm on a random order array
-void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
+void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
 
-// Each algorithm's testing function and respective array order:
-void testInsertionSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testQuickSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testMergeSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testHeapSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-
-void testInsertionSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testQuickSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testMergeSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testHeapSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-
-void testInsertionSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testQuickSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testMergeSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
-void testHeapSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS);
+// Test function structure
+void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS);
+void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS);
 
 // An enumeration for each sorting algorithm used in this program
 enum sortType {
@@ -83,7 +71,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
     std::cout << "Experimental Results - Input List: Array Size = " << TEST_ARRAY_SIZE << "\n\n\n";
 
     // Print In Order test results
-    testInOrder(testArray, TEST_ARRAY_SIZE, sortResults, SORT_RESULTS_SIZE, TEST_ITERATIONS);
+    testInOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
     std::cout << "IN ORDER (ASCENDING):\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -91,7 +79,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
     resetSortResults(sortResults, SORT_RESULTS_SIZE);
 
     // Print Reverse Order test results
-    testReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults, SORT_RESULTS_SIZE, TEST_ITERATIONS);
+    testReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
     std::cout << "\nREVERSE ORDER (DESCENDING):\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -99,7 +87,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
     resetSortResults(sortResults, SORT_RESULTS_SIZE);
 
     // Print Random Order test results
-    testRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults, SORT_RESULTS_SIZE, TEST_ITERATIONS);
+    testRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
     std::cout << "\nRANDOMIZED ORDER:\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -120,7 +108,7 @@ void setDescendingArray(int arr[], int size) {
 }
 
 // Set array to be random order
-void randomizeArray(int arr[], int size) {
+void setRandomArray(int arr[], int size) {
     // Seed the random number generator with the current time
     std::srand(static_cast<unsigned>(std::time(0)));
 
@@ -264,281 +252,41 @@ void compareDuration(int& fastestSort, sortResults sortResults[], const int SORT
 }
 
 // Tests each sorting algorithm with an in order array
-void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    testInsertionSortInOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testQuickSortInOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testMergeSortInOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testHeapSortInOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-}
-
-void testInsertionSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setAscendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        insertionSort(testArray, TEST_ARRAY_SIZE, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testQuickSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setAscendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        quickSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testMergeSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setAscendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        mergeSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testHeapSortInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setAscendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        heapSort(testArray, TEST_ARRAY_SIZE, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
+void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
+    testSort(insertionSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
+    testSort(quickSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
+    testSort(mergeSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
+    testSort(heapSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
 }
 
 // Tests each sorting algorithm with a reverse order array
-void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    testInsertionSortReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testQuickSortReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testMergeSortReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testHeapSortReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-}
-
-void testInsertionSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setDescendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        insertionSort(testArray, TEST_ARRAY_SIZE, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testQuickSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setDescendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        quickSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testMergeSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setDescendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        mergeSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testHeapSortReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        setDescendingArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        heapSort(testArray, TEST_ARRAY_SIZE, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
+void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
+    testSort(insertionSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
+    testSort(quickSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
+    testSort(mergeSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
+    testSort(heapSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
 }
 
 // Tests each sorting algorithm with a random order array
-void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    testInsertionSortRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testQuickSortRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testMergeSortRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], SORT_RESULTS_SIZE, TEST_ITERATIONS);
-    testHeapSortRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], SORT_RESULTS_SIZE, TEST_ITERATIONS);
+void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
+    testSort(insertionSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
+    testSort(quickSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
+    testSort(mergeSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
+    testSort(heapSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
 }
 
-void testInsertionSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
+void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS) {
     unsigned long long totalComparisons = 0, totalMovements = 0;
     unsigned long long totalDuration = 0;
     auto startTime = std::chrono::high_resolution_clock::now();
     auto endTime = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < TEST_ITERATIONS; i++) {
-        randomizeArray(testArray, TEST_ARRAY_SIZE);
+        order(testArray, TEST_ARRAY_SIZE);
 
         startTime = std::chrono::high_resolution_clock::now();
 
-        insertionSort(testArray, TEST_ARRAY_SIZE, sortResult);
+        sort(testArray, TEST_ARRAY_SIZE, sortResult);
 
         endTime = std::chrono::high_resolution_clock::now();
 
@@ -557,78 +305,18 @@ void testInsertionSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, so
     sortResult.movements = totalMovements / TEST_ITERATIONS;
 }
 
-void testQuickSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
+void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS) {
     unsigned long long totalComparisons = 0, totalMovements = 0;
     unsigned long long totalDuration = 0;
     auto startTime = std::chrono::high_resolution_clock::now();
     auto endTime = std::chrono::high_resolution_clock::now();
 
     for (int i = 0; i < TEST_ITERATIONS; i++) {
-        randomizeArray(testArray, TEST_ARRAY_SIZE);
+        order(testArray, TEST_ARRAY_SIZE);
 
         startTime = std::chrono::high_resolution_clock::now();
 
-        quickSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testMergeSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        randomizeArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        mergeSort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
-
-        endTime = std::chrono::high_resolution_clock::now();
-
-        totalDuration += std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count();
-        totalComparisons += sortResult.comparisons;
-        totalMovements += sortResult.movements;
-
-        // Reset these to avoid multiple test iterations causing incorrect values
-        sortResult.comparisons = 0;
-        sortResult.movements = 0;
-    }
-
-    // Average result over every test
-    sortResult.duration = totalDuration / TEST_ITERATIONS;
-    sortResult.comparisons = totalComparisons / TEST_ITERATIONS;
-    sortResult.movements = totalMovements / TEST_ITERATIONS;
-}
-
-void testHeapSortRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int SORT_RESULTS_SIZE, const int TEST_ITERATIONS) {
-    unsigned long long totalComparisons = 0, totalMovements = 0;
-    unsigned long long totalDuration = 0;
-    auto startTime = std::chrono::high_resolution_clock::now();
-    auto endTime = std::chrono::high_resolution_clock::now();
-
-    for (int i = 0; i < TEST_ITERATIONS; i++) {
-        randomizeArray(testArray, TEST_ARRAY_SIZE);
-
-        startTime = std::chrono::high_resolution_clock::now();
-
-        heapSort(testArray, TEST_ARRAY_SIZE, sortResult);
+        sort(testArray, 0, TEST_ARRAY_SIZE - 1, sortResult);
 
         endTime = std::chrono::high_resolution_clock::now();
 
