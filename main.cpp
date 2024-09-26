@@ -3,6 +3,16 @@
 #include <iostream>
 #include <iomanip>
 
+// Test iterations affects how many times each test is re-run for the averaged results to become more accurate
+constexpr int TEST_ITERATIONS = 3;
+
+// Array size for testing the sorting algorithms
+constexpr int TEST_ARRAY_SIZE = 50000;
+
+// Formatting for the tables output to console
+constexpr int nameWidth = 20;
+constexpr int barWidth = 110;
+
 // Benchmarks each algorithm's performance
 void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE);
 
@@ -28,15 +38,15 @@ void compareMovements(int& fewestMovementsSort, sortResults sortResults[], const
 void compareDuration(int& fastestSort, sortResults sortResults[], const int SORT_RESULTS_SIZE);
 
 // Tests each sorting algorithm on an in order array
-void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
+void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]);
 // Tests each sorting algorithm on a reverse order array
-void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
+void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]);
 // Tests each sorting algorithm on a random order array
-void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS);
+void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]);
 
 // Test function structure
-void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS);
-void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS);
+void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult);
+void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult);
 
 // An enumeration for each sorting algorithm used in this program
 enum sortType {
@@ -48,14 +58,12 @@ enum sortType {
 
 // Creates a 50k element array, creates an array for algorithm performance metrics to be stored, and runs the benchmark to test, analyze, and print results
 int main() {
-    // Holds the performance metrics of the sorting algorithms
+    // Holds the performance metrics of each sorting algorithm
     constexpr int SORT_RESULTS_SIZE = 4;
     sortResults sortResults[SORT_RESULTS_SIZE];
     // Sets all values to 0
     resetSortResults(sortResults, SORT_RESULTS_SIZE);
 
-    // Array for testing the sorting algorithms
-    constexpr int TEST_ARRAY_SIZE = 50000;
     int testArray[TEST_ARRAY_SIZE];
     // Populates the array with values
     setAscendingArray(testArray, TEST_ARRAY_SIZE);
@@ -64,14 +72,11 @@ int main() {
 }
 
 void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int SORT_RESULTS_SIZE) {
-    // Test iterations affects how many times a test is re-run for the averaged results to be more accurate
-    constexpr int TEST_ITERATIONS = 3;
-
     std::cout << "The following values are the average results over " << TEST_ITERATIONS << " simulation(s)\n\n";
     std::cout << "Experimental Results - Input List: Array Size = " << TEST_ARRAY_SIZE << "\n\n\n";
 
     // Print In Order test results
-    testInOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
+    testInOrder(testArray, TEST_ARRAY_SIZE, sortResults);
     std::cout << "IN ORDER (ASCENDING):\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -79,7 +84,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
     resetSortResults(sortResults, SORT_RESULTS_SIZE);
 
     // Print Reverse Order test results
-    testReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
+    testReverseOrder(testArray, TEST_ARRAY_SIZE, sortResults);
     std::cout << "\nREVERSE ORDER (DESCENDING):\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -87,7 +92,7 @@ void benchmarkSortingAlgorithms(int testArray[], const int TEST_ARRAY_SIZE, sort
     resetSortResults(sortResults, SORT_RESULTS_SIZE);
 
     // Print Random Order test results
-    testRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults, TEST_ITERATIONS);
+    testRandomOrder(testArray, TEST_ARRAY_SIZE, sortResults);
     std::cout << "\nRANDOMIZED ORDER:\n\n";
     printResults(sortResults);
     printResultsAnalysis(sortResults, SORT_RESULTS_SIZE);
@@ -132,10 +137,8 @@ void resetSortResults(sortResults sortResults[], const int SORT_RESULTS_SIZE) {
 }
 
 void printResults(sortResults sortResults[]) {
-    // Set column widths
-    constexpr int nameWidth = 20;
+    // Formatting
     constexpr int numWidth = 30;
-    constexpr int barWidth = 110;
 
     // Print a bar
     std::cout << std::string(barWidth, '-') << "\n";
@@ -187,9 +190,7 @@ void printResultsAnalysis(sortResults sortResults[], const int SORT_RESULTS_SIZE
     std::string fastestSortName = sortTypeToString(fastestSort);
 
     // Formatting
-    constexpr int nameWidth = 20;
     constexpr int numWidth = 10;
-    constexpr int barWidth = 110;
 
     // Print the best performing sorts
     std::cout << std::left << std::setw(nameWidth) << "Fewest Comparisons:"
@@ -252,30 +253,31 @@ void compareDuration(int& fastestSort, sortResults sortResults[], const int SORT
 }
 
 // Tests each sorting algorithm with an in order array
-void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
-    testSort(insertionSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
-    testSort(quickSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
-    testSort(mergeSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
-    testSort(heapSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
+void testInOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]) {
+    testSort(insertionSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion]);
+    testSort(quickSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick]);
+    testSort(mergeSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge]);
+    testSort(heapSort, setAscendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap]);
 }
 
 // Tests each sorting algorithm with a reverse order array
-void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
-    testSort(insertionSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
-    testSort(quickSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
-    testSort(mergeSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
-    testSort(heapSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
+void testReverseOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]) {
+    testSort(insertionSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion]);
+    testSort(quickSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick]);
+    testSort(mergeSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge]);
+    testSort(heapSort, setDescendingArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap]);
 }
 
 // Tests each sorting algorithm with a random order array
-void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[], const int TEST_ITERATIONS) {
-    testSort(insertionSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion], TEST_ITERATIONS);
-    testSort(quickSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick], TEST_ITERATIONS);
-    testSort(mergeSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge], TEST_ITERATIONS);
-    testSort(heapSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap], TEST_ITERATIONS);
+void testRandomOrder(int testArray[], const int TEST_ARRAY_SIZE, sortResults sortResults[]) {
+    testSort(insertionSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::insertion]);
+    testSort(quickSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::quick]);
+    testSort(mergeSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::merge]);
+    testSort(heapSort, setRandomArray, testArray, TEST_ARRAY_SIZE, sortResults[sortType::heap]);
 }
 
-void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS) {
+// Tests a given sorting algorithm on a given ordered array based on function pointers
+void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult) {
     unsigned long long totalComparisons = 0, totalMovements = 0;
     unsigned long long totalDuration = 0;
     auto startTime = std::chrono::high_resolution_clock::now();
@@ -305,7 +307,8 @@ void testSort(void (*sort)(int[], int, sortResults&), void (*order)(int[], int),
     sortResult.movements = totalMovements / TEST_ITERATIONS;
 }
 
-void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult, const int TEST_ITERATIONS) {
+// Tests a given sorting algorithm on a given ordered array based on function pointers
+void testSort(void (*sort)(int[], int, int, sortResults&), void (*order)(int[], int), int testArray[], const int TEST_ARRAY_SIZE, sortResults& sortResult) {
     unsigned long long totalComparisons = 0, totalMovements = 0;
     unsigned long long totalDuration = 0;
     auto startTime = std::chrono::high_resolution_clock::now();
